@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/astaxie/beego"
+	"guess/models"
 )
 
 type MainController struct {
@@ -9,7 +12,58 @@ type MainController struct {
 }
 
 func (c *MainController) Get() {
-	c.Data["Website"] = "beego.me"
-	c.Data["Email"] = "astaxie@gmail.com"
-	c.TplName = "index.tpl"
+	var subject models.Subject
+	err := func() error {
+		id, err := c.GetInt("id")
+		beego.Info(id)
+		if err != nil {
+			id = 1
+		}
+		subject, err := models.GetSubject(id)
+		if err != nil {
+			return errors.New("subject no exist")
+		}
+		return nil
+	}()
+
+	if err != nil {
+		c.Ctx.WriteString("wrong params")
+	}
+
+	var option map[string]string
+	if err = json.Unmarshal([]byte(subject.Option), &option); err != nil {
+		c.Ctx.WriteString("wrong params, json decode")
+	}
+
+	c.Data["ID"] = subject.Id
+	c.Data["Option"] = subject.Option
+	c.Data["Img"] = "/static" + subject.Img
+	c.TplName = "guess.tpl"
+}
+
+func (c *MainController) Post() {
+	var subject models.Subject
+	err := func() error {
+		id, err := c.GetInt("id")
+		beego.Info(id)
+		if err != nil {
+			id = 1
+		}
+		subject, err := models.GetSubject(id)
+		if err != nil {
+			return errors.New("subject no exist")
+		}
+		return nil
+	}()
+
+	if err != nil {
+		c.Ctx.WriteString("wrong params")
+	}
+	answer := c.GetString("key")
+	right := models.Answer(subject.Id, answer)
+
+	c.Data["Right"] = right
+	c.Data["Next"] = subject.Id + 1
+	c.Data["ID"] = subject.Id
+	c.TplName = "guess.tpl"
 }
