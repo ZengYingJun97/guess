@@ -15,11 +15,11 @@ func (c *MainController) Get() {
 	var subject models.Subject
 	err := func() error {
 		id, err := c.GetInt("id")
-		beego.Info(id)
 		if err != nil {
 			id = 1
 		}
-		subject, err := models.GetSubject(id)
+		subject, err = models.GetSubject(id)
+		beego.Info(subject)
 		if err != nil {
 			return errors.New("subject no exist")
 		}
@@ -36,7 +36,7 @@ func (c *MainController) Get() {
 	}
 
 	c.Data["ID"] = subject.Id
-	c.Data["Option"] = subject.Option
+	c.Data["Option"] = option
 	c.Data["Img"] = "/static" + subject.Img
 	c.TplName = "guess.tpl"
 }
@@ -49,7 +49,7 @@ func (c *MainController) Post() {
 		if err != nil {
 			id = 1
 		}
-		subject, err := models.GetSubject(id)
+		subject, err = models.GetSubject(id)
 		if err != nil {
 			return errors.New("subject no exist")
 		}
