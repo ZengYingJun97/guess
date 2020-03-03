@@ -8,7 +8,7 @@ import (
 type DatabaseCheck struct {
 }
 
-func (*DatabaseCheck) check() error {
+func (*DatabaseCheck) Check() error {
 	_, err := sql.Open("mysql", "handsome:handsome@/guess?charset=utf8")
 	return err
 }
